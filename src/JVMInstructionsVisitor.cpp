@@ -4,138 +4,136 @@
    List->accept() does NOT traverse the list. This allows different
    algorithms to use context information differently. */
 
+#include "JVMVariables.h"
 #include "JVMInstructionsVisitor.h"
 
-
-
-void JVMInstructionsVisitor::visitProgram(Program* t) {} //abstract class
-void JVMInstructionsVisitor::visitStmt(Stmt* t) {} //abstract class
-void JVMInstructionsVisitor::visitExp(Exp* t) {} //abstract class
+void JVMInstructionsVisitor::visitProgram(Program *t) {} //abstract class
+void JVMInstructionsVisitor::visitStmt(Stmt *t) {}       //abstract class
+void JVMInstructionsVisitor::visitExp(Exp *t) {}         //abstract class
 
 void JVMInstructionsVisitor::visitProg(Prog *prog)
 {
-  /* Code For Prog Goes Here */
-
-  prog->liststmt_->accept(this);
-
+    prog->liststmt_->accept(this);
 }
 
 void JVMInstructionsVisitor::visitSAss(SAss *sass)
 {
-  /* Code For SAss Goes Here */
+    sass->exp_->accept(this);
 
-  visitIdent(sass->ident_);
-  sass->exp_->accept(this);
-  printf("store\n");
+    unsigned int index = JVMVariables::getInstance().assignment(sass->ident_);
 
+    if (index <= 3)
+    {
+        printf("  istore_%d\n", index);
+    }
+    else
+    {
+        printf("  istore %d\n", index);
+    }
 }
 
 void JVMInstructionsVisitor::visitSExp(SExp *sexp)
 {
-  /* Code For SExp Goes Here */
-
-  sexp->exp_->accept(this);
-  printf("printInt\n");
-
+    printf("  getstatic java/lang/System/out Ljava/io/PrintStream;\n");
+    sexp->exp_->accept(this);
+    printf("  invokevirtual java/io/PrintStream/println(I)V\n");
 }
 
 void JVMInstructionsVisitor::visitExpAdd(ExpAdd *expadd)
 {
-  /* Code For ExpAdd Goes Here */
-
-  expadd->exp_1->accept(this);
-  expadd->exp_2->accept(this);
-  printf("iadd\n");
-
+    expadd->exp_1->accept(this);
+    expadd->exp_2->accept(this);
+    printf("  iadd\n");
 }
 
 void JVMInstructionsVisitor::visitExpSub(ExpSub *expsub)
 {
-  /* Code For ExpSub Goes Here */
-
-  expsub->exp_1->accept(this);
-  expsub->exp_2->accept(this);
-  printf("isub\n");
-
+    expsub->exp_1->accept(this);
+    expsub->exp_2->accept(this);
+    printf("  isub\n");
 }
 
 void JVMInstructionsVisitor::visitExpMul(ExpMul *expmul)
 {
-  /* Code For ExpMul Goes Here */
-
-  expmul->exp_1->accept(this);
-  expmul->exp_2->accept(this);
-  printf("imul\n");
-
+    expmul->exp_1->accept(this);
+    expmul->exp_2->accept(this);
+    printf("  imul\n");
 }
 
 void JVMInstructionsVisitor::visitExpDiv(ExpDiv *expdiv)
 {
-  /* Code For ExpDiv Goes Here */
-
-  expdiv->exp_1->accept(this);
-  expdiv->exp_2->accept(this);
-  printf("idiv\n");
-
+    expdiv->exp_1->accept(this);
+    expdiv->exp_2->accept(this);
+    printf("  idiv\n");
 }
 
 void JVMInstructionsVisitor::visitExpLit(ExpLit *explit)
 {
-  /* Code For ExpLit Goes Here */
-
-  visitInteger(explit->integer_);
-
+    visitInteger(explit->integer_);
 }
 
 void JVMInstructionsVisitor::visitExpVar(ExpVar *expvar)
 {
-  /* Code For ExpVar Goes Here */
+    bool ok = false;
+    unsigned int index = 0;
+    std::tie(ok, index) = JVMVariables::getInstance().getIndex(expvar->ident_);
 
-  visitIdent(expvar->ident_);
+    if (!ok)
+    {
+        throw std::invalid_argument(
+            std::string("Variable \"") + expvar->ident_ + std::string("\" used but not declared!"));
+    }
 
+    if (index <= 3)
+    {
+        printf("  iload_%d\n", index);
+    }
+    else
+    {
+        printf("  iload %d\n", index);
+    }
 }
 
-
-void JVMInstructionsVisitor::visitListStmt(ListStmt* liststmt)
+void JVMInstructionsVisitor::visitListStmt(ListStmt *liststmt)
 {
-  for (ListStmt::iterator i = liststmt->begin() ; i != liststmt->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
+    for (ListStmt::iterator i = liststmt->begin(); i != liststmt->end(); ++i)
+    {
+        (*i)->accept(this);
+    }
 }
-
 
 void JVMInstructionsVisitor::visitInteger(Integer x)
 {
-  if (x >= -1 && x <= 5)
-  {
-    printf("iconst_%d\n", x);
-  }
-  else
-  {
-    printf("bipush %d\n", x);
-  }
+    if (x >= 0 && x <= 5)
+    {
+        printf("  iconst_%d\n", x);
+    }
+    else if (x == -1)
+    {
+        printf("  iconst_m1\n");
+    }
+    else if (x <= 127 && x >= -127)
+    {
+        printf("  bipush %d\n", x);
+    }
+    else
+    {
+        printf("  sipush %d\n", x);
+    }
 }
 
 void JVMInstructionsVisitor::visitChar(Char x)
 {
-  /* Code for Char Goes Here */
 }
 
 void JVMInstructionsVisitor::visitDouble(Double x)
 {
-  /* Code for Double Goes Here */
 }
 
 void JVMInstructionsVisitor::visitString(String x)
 {
-  /* Code for String Goes Here */
 }
 
 void JVMInstructionsVisitor::visitIdent(Ident x)
 {
-  /* Code for Ident Goes Here */
 }
-
-
-

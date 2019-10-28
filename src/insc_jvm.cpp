@@ -10,28 +10,42 @@
 #include "Absyn.h"
 #include "JVMInstructionsVisitor.h"
 
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
-  FILE *input;
-  if (argc > 1) 
-  {
-    input = fopen(argv[1], "r");
-    if (!input)
+    FILE *input;
+    if (argc > 1)
     {
-      fprintf(stderr, "Error opening input file.\n");
-      exit(1);
+        input = fopen(argv[1], "r");
+        if (!input)
+        {
+            fprintf(stderr, "Error opening input file.\n");
+            exit(1);
+        }
     }
-  }
-  else input = stdin;
-  /* The default entry point is used. For other options see Parser.H */
-  ListStmt *parse_tree = pListStmt(input);
-  if (parse_tree)
-  {
-    JVMInstructionsVisitor instructions_visitor;
-    instructions_visitor.visitListStmt(parse_tree);
+    else
+        input = stdin;
+    ListStmt *parse_tree = pListStmt(input);
+    if (parse_tree)
+    {
+        printf(".class public Main\n"
+               ".super java/lang/Object\n"
 
-    return 0;
-  }
-  return 1;
+               ".method public <init>()V\n"
+               "  .limit stack 1\n"
+               "  .limit locals 1\n"
+               "  aload_0\n"
+               "  invokespecial java/lang/Object/<init>()V\n"
+               "  return\n"
+               ".end method\n"
+
+               ".method public static main([Ljava/lang/String;)V\n"
+               "  .limit stack 1000\n"
+               "  .limit locals 1\n");
+        JVMInstructionsVisitor instructions_visitor;
+        instructions_visitor.visitListStmt(parse_tree);
+        printf("  return\n"
+               ".end method");
+        return 0;
+    }
+    return 1;
 }
-
