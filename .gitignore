@@ -1,3 +1,6 @@
+#IDE
+.vscode
+
 # Prerequisites
 *.d
 
@@ -30,3 +33,5 @@
 *.exe
 *.out
 *.app
+insc_jvm
+insc_llvm
