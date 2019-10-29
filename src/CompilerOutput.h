@@ -23,7 +23,7 @@ public:
         fclose(out_file_);
     }
 
-    void printLine(const char *line) {
+    void print(const char *line) {
         fprintf(out_file_, line);
     }
 

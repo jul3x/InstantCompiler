@@ -5,6 +5,7 @@
 #include "Absyn.h"
 #include "JVMInstructionsVisitor.h"
 #include "CompilerOutput.h"
+#include "Utils.h"
 
 int main(int argc, char **argv)
 {
@@ -29,10 +30,27 @@ int main(int argc, char **argv)
     {
         try
         {
-            std::string out_file(std::string(argv[1]) + ".j");
+            std::string in_file(argv[1]);
+            auto slash_iter = in_file.find_last_of('/');
+            auto dot_iter = in_file.find_last_of('.');
+
+            std::string directory = slash_iter == std::string::npos ? "." : in_file.substr(0, slash_iter);
+            std::string class_name = in_file.substr(slash_iter + 1,
+                (dot_iter == std::string::npos ? in_file.length() : dot_iter) - slash_iter - 1);
+            std::string out_file = directory + "/" + class_name + ".j";
+
             CompilerOutput::getInstance().initialize(out_file.c_str());
-            CompilerOutput::getInstance().printLine(
-                ".class public Main\n"
+
+            if (!parseFilename(class_name))
+            {
+                throw std::invalid_argument("Invalid filename!\n");
+            }
+
+            CompilerOutput::getInstance().print(
+                ".class public ");
+            CompilerOutput::getInstance().print(
+                (class_name + "\n").c_str());
+            CompilerOutput::getInstance().print(
                 ".super java/lang/Object\n"
                 ".method public <init>()V\n"
                 "  .limit stack 1\n"
@@ -43,18 +61,20 @@ int main(int argc, char **argv)
                 ".end method\n"
                 ".method public static main([Ljava/lang/String;)V\n"
                 "  .limit stack 1000\n"
-                "  .limit locals 1\n");
+                "  .limit locals 3\n");
 
             JVMInstructionsVisitor instructions_visitor;
             instructions_visitor.visitListStmt(parse_tree);
 
-            CompilerOutput::getInstance().printLine(
+            CompilerOutput::getInstance().print(
                 "  return\n"
-                ".end method");
+                ".end method\n");
 
             CompilerOutput::getInstance().deinitialize();
 
             printf("Compiling successful!\n");
+            printf("Generated %s.j and %s.class files in %s directory.\n",
+                class_name.c_str(), class_name.c_str(), directory.c_str()   );
 
             return 0;
         }

@@ -34,42 +34,42 @@ void JVMInstructionsVisitor::visitSAss(SAss *sass)
         out = "  istore " + std::to_string(index) + "\n";
     }
 
-    CompilerOutput::getInstance().printLine(out.c_str());
+    CompilerOutput::getInstance().print(out.c_str());
 }
 
 void JVMInstructionsVisitor::visitSExp(SExp *sexp)
 {
-    CompilerOutput::getInstance().printLine("  getstatic java/lang/System/out Ljava/io/PrintStream;\n");
+    CompilerOutput::getInstance().print("  getstatic java/lang/System/out Ljava/io/PrintStream;\n");
     sexp->exp_->accept(this);
-    CompilerOutput::getInstance().printLine("  invokevirtual java/io/PrintStream/println(I)V\n");
+    CompilerOutput::getInstance().print("  invokevirtual java/io/PrintStream/println(I)V\n");
 }
 
 void JVMInstructionsVisitor::visitExpAdd(ExpAdd *expadd)
 {
     expadd->exp_1->accept(this);
     expadd->exp_2->accept(this);
-    CompilerOutput::getInstance().printLine("  iadd\n");
+    CompilerOutput::getInstance().print("  iadd\n");
 }
 
 void JVMInstructionsVisitor::visitExpSub(ExpSub *expsub)
 {
     expsub->exp_1->accept(this);
     expsub->exp_2->accept(this);
-    CompilerOutput::getInstance().printLine("  isub\n");
+    CompilerOutput::getInstance().print("  isub\n");
 }
 
 void JVMInstructionsVisitor::visitExpMul(ExpMul *expmul)
 {
     expmul->exp_1->accept(this);
     expmul->exp_2->accept(this);
-    CompilerOutput::getInstance().printLine("  imul\n");
+    CompilerOutput::getInstance().print("  imul\n");
 }
 
 void JVMInstructionsVisitor::visitExpDiv(ExpDiv *expdiv)
 {
     expdiv->exp_1->accept(this);
     expdiv->exp_2->accept(this);
-    CompilerOutput::getInstance().printLine("  idiv\n");
+    CompilerOutput::getInstance().print("  idiv\n");
 }
 
 void JVMInstructionsVisitor::visitExpLit(ExpLit *explit)
@@ -86,7 +86,7 @@ void JVMInstructionsVisitor::visitExpVar(ExpVar *expvar)
     if (!ok)
     {
         throw std::invalid_argument(
-            std::string("Variable \"") + expvar->ident_ + std::string("\" used but not declared!"));
+            std::string("Variable \"") + expvar->ident_ + std::string("\" used but not declared!\n"));
     }
 
     std::string out;
@@ -100,7 +100,7 @@ void JVMInstructionsVisitor::visitExpVar(ExpVar *expvar)
         out = "  iload " + std::to_string(index) + "\n";
     }
 
-    CompilerOutput::getInstance().printLine(out.c_str());
+    CompilerOutput::getInstance().print(out.c_str());
 }
 
 void JVMInstructionsVisitor::visitListStmt(ListStmt *liststmt)
@@ -131,7 +131,7 @@ void JVMInstructionsVisitor::visitInteger(Integer x)
         out = "  sipush " + std::to_string(x) + "\n";
     }
 
-    CompilerOutput::getInstance().printLine(out.c_str());
+    CompilerOutput::getInstance().print(out.c_str());
 }
 
 void JVMInstructionsVisitor::visitChar(Char x)
