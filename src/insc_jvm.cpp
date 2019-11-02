@@ -34,15 +34,8 @@ int main(int argc, char **argv)
         {
             printf("Parse successful!\n");
 
-            std::string in_file(argv[1]);
-            auto slash_iter = in_file.find_last_of('/');
-            auto dot_iter = in_file.find_last_of('.');
-
-            std::string directory = slash_iter == std::string::npos ? "." : in_file.substr(0, slash_iter);
-            std::string class_name = in_file.substr(slash_iter + 1,
-                (dot_iter == std::string::npos ? in_file.length() : dot_iter) - slash_iter - 1);
-            std::string out_file = directory + "/" + class_name + ".j";
-
+            std::string directory, class_name, out_file;
+            std::tie(directory, class_name, out_file) = generateOutNames(argv[1], "j");
             CompilerOutput::getInstance().initialize(out_file);
 
             if (!parseFilename(class_name))

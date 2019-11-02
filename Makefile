@@ -10,6 +10,7 @@ BISON_OPTS = -t -pInstant
 
 OBJS = Absyn.o Lexer.o Parser.o
 JVM_OBJS = JVMInstructionsVisitor.o JVMPreprocessingVisitor.o
+LLVM_OBJS = LLVMInstructionsVisitor.o
 
 .PHONY: clean distclean
 
@@ -24,12 +25,14 @@ distclean: clean
 	rm -f Makefile
 	cd src/
 	rm -f Instant.l Instant.y Instant.tex insc_llvm.cpp insc_jvm.cpp
-	rm -f Absyn.cpp Parser.cpp Lexer.cpp JVMInstructionsVisitor.cpp JVMPreprocessingVisitor.cpp Printer.cpp
-	rm -f Absyn.h Parser.h JVMInstructionsVisitor.h JVMPreprocessingVisitor.h CompilerOutput.h JVMVariables.h Printer.h Utils.h
+	rm -f Absyn.cpp Parser.cpp Lexer.cpp JVMInstructionsVisitor.cpp JVMPreprocessingVisitor.cpp
+	rm -f LLVMInstructionsVisitor.cpp
+	rm -f Absyn.h Parser.h JVMInstructionsVisitor.h JVMPreprocessingVisitor.h CompilerOutput.h JVMVariables.h
+	rm -f LLVMInstructionsVisitor.h LLVMVariables.h Utils.h
 
-insc_llvm: ${OBJS} insc_llvm.o
+insc_llvm: ${OBJS} ${LLVM_OBJS} insc_llvm.o
 	@echo "Linking insc_llvm..."
-	${CC} ${CCFLAGS} ${OBJS} insc_llvm.o -o insc_llvm ${CCLIBS}
+	${CC} ${CCFLAGS} ${OBJS} ${LLVM_OBJS} insc_llvm.o -o insc_llvm ${CCLIBS}
 
 insc_jvm: ${OBJS} ${JVM_OBJS} insc_jvm.o
 	@echo "Linking insc_jvm..."
@@ -55,6 +58,9 @@ JVMInstructionsVisitor.o: src/JVMInstructionsVisitor.cpp src/JVMInstructionsVisi
 
 JVMPreprocessingVisitor.o: src/JVMPreprocessingVisitor.cpp src/JVMPreprocessingVisitor.h src/Absyn.h
 	${CC} ${CCFLAGS} -c src/JVMPreprocessingVisitor.cpp
+
+LLVMInstructionsVisitor.o: src/LLVMInstructionsVisitor.cpp src/LLVMInstructionsVisitor.h src/Absyn.h
+	${CC} ${CCFLAGS} -c src/LLVMInstructionsVisitor.cpp
 
 insc_llvm.o: src/insc_llvm.cpp src/Parser.h src/Absyn.h
 	${CC} ${CCFLAGS} -c src/insc_llvm.cpp

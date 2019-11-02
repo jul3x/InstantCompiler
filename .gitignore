@@ -39,3 +39,7 @@ insc_llvm
 # JVM
 *.j
 *.class
+
+# LLVM
+*.ll
+*.bc
