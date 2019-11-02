@@ -43,3 +43,6 @@ insc_llvm
 # LLVM
 *.ll
 *.bc
+
+# lib
+!lib/*
