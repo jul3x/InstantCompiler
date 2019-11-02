@@ -17,7 +17,7 @@ void JVMInstructionsVisitor::visitProg(Prog *prog)
     prog->liststmt_->accept(this);
 }
 
-void JVMInstructionsVisitor::visitSAss(SAss *sass)
+std::pair<int, bool> JVMInstructionsVisitor::visitSAss(SAss *sass)
 {
     sass->exp_->accept(this);
 
@@ -34,50 +34,109 @@ void JVMInstructionsVisitor::visitSAss(SAss *sass)
         out = "  istore " + std::to_string(index) + "\n";
     }
 
-    CompilerOutput::getInstance().print(out.c_str());
+    JVMVariables::getInstance().modifyStack(-1);
+
+    CompilerOutput::getInstance().append(out);
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitSExp(SExp *sexp)
+std::pair<int, bool> JVMInstructionsVisitor::visitSExp(SExp *sexp)
 {
-    CompilerOutput::getInstance().print("  getstatic java/lang/System/out Ljava/io/PrintStream;\n");
+    CompilerOutput::getInstance().append("  getstatic java/lang/System/out Ljava/io/PrintStream;\n");
+    JVMVariables::getInstance().modifyStack(1);
     sexp->exp_->accept(this);
-    CompilerOutput::getInstance().print("  invokevirtual java/io/PrintStream/println(I)V\n");
+    CompilerOutput::getInstance().append("  invokevirtual java/io/PrintStream/println(I)V\n");
+    JVMVariables::getInstance().modifyStack(-2);
+
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitExpAdd(ExpAdd *expadd)
+std::pair<int, bool> JVMInstructionsVisitor::visitExpAdd(ExpAdd *expadd)
 {
-    expadd->exp_1->accept(this);
-    expadd->exp_2->accept(this);
-    CompilerOutput::getInstance().print("  iadd\n");
+    if (expadd->exp_1->difficulty_ >= expadd->exp_2->difficulty_)
+    {
+        expadd->exp_1->accept(this);
+        expadd->exp_2->accept(this);
+    }
+    else
+    {
+        expadd->exp_2->accept(this);
+        expadd->exp_1->accept(this);
+    }
+
+    CompilerOutput::getInstance().append("  iadd\n");
+    JVMVariables::getInstance().modifyStack(-1);
+
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitExpSub(ExpSub *expsub)
+std::pair<int, bool> JVMInstructionsVisitor::visitExpSub(ExpSub *expsub)
 {
-    expsub->exp_1->accept(this);
-    expsub->exp_2->accept(this);
-    CompilerOutput::getInstance().print("  isub\n");
+    if (expsub->exp_1->difficulty_ >= expsub->exp_2->difficulty_)
+    {
+        expsub->exp_1->accept(this);
+        expsub->exp_2->accept(this);
+    }
+    else
+    {
+        expsub->exp_2->accept(this);
+        expsub->exp_1->accept(this);
+        CompilerOutput::getInstance().append("  swap\n");
+    }
+
+    CompilerOutput::getInstance().append("  isub\n");
+    JVMVariables::getInstance().modifyStack(-1);
+
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitExpMul(ExpMul *expmul)
+std::pair<int, bool> JVMInstructionsVisitor::visitExpMul(ExpMul *expmul)
 {
-    expmul->exp_1->accept(this);
-    expmul->exp_2->accept(this);
-    CompilerOutput::getInstance().print("  imul\n");
+    if (expmul->exp_1->difficulty_ >= expmul->exp_2->difficulty_)
+    {
+        expmul->exp_1->accept(this);
+        expmul->exp_2->accept(this);
+    }
+    else
+    {
+        expmul->exp_2->accept(this);
+        expmul->exp_1->accept(this);
+    }
+
+    CompilerOutput::getInstance().append("  imul\n");
+    JVMVariables::getInstance().modifyStack(-1);
+
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitExpDiv(ExpDiv *expdiv)
+std::pair<int, bool> JVMInstructionsVisitor::visitExpDiv(ExpDiv *expdiv)
 {
-    expdiv->exp_1->accept(this);
-    expdiv->exp_2->accept(this);
-    CompilerOutput::getInstance().print("  idiv\n");
+    if (expdiv->exp_1->difficulty_ >= expdiv->exp_2->difficulty_)
+    {
+        expdiv->exp_1->accept(this);
+        expdiv->exp_2->accept(this);
+    }
+    else
+    {
+        expdiv->exp_2->accept(this);
+        expdiv->exp_1->accept(this);
+        CompilerOutput::getInstance().append("  swap\n");
+    }
+
+    CompilerOutput::getInstance().append("  idiv\n");
+    JVMVariables::getInstance().modifyStack(-1);
+
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitExpLit(ExpLit *explit)
+std::pair<int, bool> JVMInstructionsVisitor::visitExpLit(ExpLit *explit)
 {
     visitInteger(explit->integer_);
+
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitExpVar(ExpVar *expvar)
+std::pair<int, bool> JVMInstructionsVisitor::visitExpVar(ExpVar *expvar)
 {
     bool ok = false;
     unsigned int index = 0;
@@ -100,7 +159,10 @@ void JVMInstructionsVisitor::visitExpVar(ExpVar *expvar)
         out = "  iload " + std::to_string(index) + "\n";
     }
 
-    CompilerOutput::getInstance().print(out.c_str());
+    CompilerOutput::getInstance().append(out);
+    JVMVariables::getInstance().modifyStack(1);
+
+    return std::make_pair(0, false);
 }
 
 void JVMInstructionsVisitor::visitListStmt(ListStmt *liststmt)
@@ -111,7 +173,7 @@ void JVMInstructionsVisitor::visitListStmt(ListStmt *liststmt)
     }
 }
 
-void JVMInstructionsVisitor::visitInteger(Integer x)
+std::pair<int, bool> JVMInstructionsVisitor::visitInteger(Integer x)
 {
     std::string out;
     if (x >= 0 && x <= 5)
@@ -131,21 +193,28 @@ void JVMInstructionsVisitor::visitInteger(Integer x)
         out = "  sipush " + std::to_string(x) + "\n";
     }
 
-    CompilerOutput::getInstance().print(out.c_str());
+    CompilerOutput::getInstance().append(out);
+    JVMVariables::getInstance().modifyStack(1);
+
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitChar(Char x)
+std::pair<int, bool> JVMInstructionsVisitor::visitChar(Char x)
 {
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitDouble(Double x)
+std::pair<int, bool> JVMInstructionsVisitor::visitDouble(Double x)
 {
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitString(String x)
+std::pair<int, bool> JVMInstructionsVisitor::visitString(String x)
 {
+    return std::make_pair(0, false);
 }
 
-void JVMInstructionsVisitor::visitIdent(Ident x)
+std::pair<int, bool> JVMInstructionsVisitor::visitIdent(Ident x)
 {
+    return std::make_pair(0, false);
 }

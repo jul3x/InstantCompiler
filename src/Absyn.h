@@ -30,7 +30,12 @@ class ExpLit;
 class ExpVar;
 class ListStmt;
 
-/********************   Visitor Interfaces    ********************/
+/*
+ * Visitor Interfaces
+ * Return value pair<int, bool> determines if return value is a number or register number (true if register number)
+ * Used in either llvm and jvm
+ */
+
 class Visitor
 {
 public:
@@ -39,28 +44,31 @@ public:
     virtual void visitStmt(Stmt *p) = 0;
     virtual void visitExp(Exp *p) = 0;
     virtual void visitProg(Prog *p) = 0;
-    virtual void visitSAss(SAss *p) = 0;
-    virtual void visitSExp(SExp *p) = 0;
-    virtual void visitExpAdd(ExpAdd *p) = 0;
-    virtual void visitExpSub(ExpSub *p) = 0;
-    virtual void visitExpMul(ExpMul *p) = 0;
-    virtual void visitExpDiv(ExpDiv *p) = 0;
-    virtual void visitExpLit(ExpLit *p) = 0;
-    virtual void visitExpVar(ExpVar *p) = 0;
+    virtual std::pair<int, bool> visitSAss(SAss *p) = 0;
+    virtual std::pair<int, bool> visitSExp(SExp *p) = 0;
+    virtual std::pair<int, bool> visitExpAdd(ExpAdd *p) = 0;
+    virtual std::pair<int, bool> visitExpSub(ExpSub *p) = 0;
+    virtual std::pair<int, bool> visitExpMul(ExpMul *p) = 0;
+    virtual std::pair<int, bool> visitExpDiv(ExpDiv *p) = 0;
+    virtual std::pair<int, bool> visitExpLit(ExpLit *p) = 0;
+    virtual std::pair<int, bool> visitExpVar(ExpVar *p) = 0;
     virtual void visitListStmt(ListStmt *p) = 0;
 
-    virtual void visitInteger(Integer x) = 0;
-    virtual void visitChar(Char x) = 0;
-    virtual void visitDouble(Double x) = 0;
-    virtual void visitString(String x) = 0;
-    virtual void visitIdent(Ident x) = 0;
+    virtual std::pair<int, bool> visitInteger(Integer x) = 0;
+    virtual std::pair<int, bool> visitChar(Char x) = 0;
+    virtual std::pair<int, bool> visitDouble(Double x) = 0;
+    virtual std::pair<int, bool> visitString(String x) = 0;
+    virtual std::pair<int, bool> visitIdent(Ident x) = 0;
 };
 
 class Visitable
 {
 public:
+    Visitable() { difficulty_ = 0; }
     virtual ~Visitable() {}
-    virtual void accept(Visitor *v) = 0;
+    virtual std::pair<int, bool> accept(Visitor *v) = 0;
+
+    unsigned int difficulty_;
 };
 
 /********************   Abstract Syntax Classes    ********************/
@@ -92,7 +100,7 @@ public:
     Prog &operator=(const Prog &);
     Prog(ListStmt *p1);
     ~Prog();
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual Prog *clone() const;
     void swap(Prog &);
 };
@@ -107,7 +115,7 @@ public:
     SAss &operator=(const SAss &);
     SAss(Ident p1, Exp *p2);
     ~SAss();
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual SAss *clone() const;
     void swap(SAss &);
 };
@@ -121,7 +129,7 @@ public:
     SExp &operator=(const SExp &);
     SExp(Exp *p1);
     ~SExp();
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual SExp *clone() const;
     void swap(SExp &);
 };
@@ -136,7 +144,7 @@ public:
     ExpAdd &operator=(const ExpAdd &);
     ExpAdd(Exp *p1, Exp *p2);
     ~ExpAdd();
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual ExpAdd *clone() const;
     void swap(ExpAdd &);
 };
@@ -151,7 +159,7 @@ public:
     ExpSub &operator=(const ExpSub &);
     ExpSub(Exp *p1, Exp *p2);
     ~ExpSub();
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual ExpSub *clone() const;
     void swap(ExpSub &);
 };
@@ -166,7 +174,7 @@ public:
     ExpMul &operator=(const ExpMul &);
     ExpMul(Exp *p1, Exp *p2);
     ~ExpMul();
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual ExpMul *clone() const;
     void swap(ExpMul &);
 };
@@ -181,7 +189,7 @@ public:
     ExpDiv &operator=(const ExpDiv &);
     ExpDiv(Exp *p1, Exp *p2);
     ~ExpDiv();
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual ExpDiv *clone() const;
     void swap(ExpDiv &);
 };
@@ -195,7 +203,7 @@ public:
     ExpLit &operator=(const ExpLit &);
     ExpLit(Integer p1);
     ~ExpLit();
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual ExpLit *clone() const;
     void swap(ExpLit &);
 };
@@ -209,7 +217,7 @@ public:
     ExpVar &operator=(const ExpVar &);
     ExpVar(Ident p1);
     ~ExpVar();
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual ExpVar *clone() const;
     void swap(ExpVar &);
 };
@@ -217,7 +225,7 @@ public:
 class ListStmt : public Visitable, public std::vector<Stmt *>
 {
 public:
-    virtual void accept(Visitor *v);
+    virtual std::pair<int, bool> accept(Visitor *v);
     virtual ListStmt *clone() const;
 };
 

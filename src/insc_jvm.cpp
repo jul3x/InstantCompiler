@@ -1,9 +1,11 @@
 #include <cstdio>
 #include <stdexcept>
+#include <experimental/filesystem>
 #include "Parser.h"
-#include "Printer.h"
 #include "Absyn.h"
 #include "JVMInstructionsVisitor.h"
+#include "JVMPreprocessingVisitor.h"
+#include "JVMVariables.h"
 #include "CompilerOutput.h"
 #include "Utils.h"
 
@@ -30,6 +32,8 @@ int main(int argc, char **argv)
     {
         try
         {
+            printf("Parse successful!\n");
+
             std::string in_file(argv[1]);
             auto slash_iter = in_file.find_last_of('/');
             auto dot_iter = in_file.find_last_of('.');
@@ -39,7 +43,7 @@ int main(int argc, char **argv)
                 (dot_iter == std::string::npos ? in_file.length() : dot_iter) - slash_iter - 1);
             std::string out_file = directory + "/" + class_name + ".j";
 
-            CompilerOutput::getInstance().initialize(out_file.c_str());
+            CompilerOutput::getInstance().initialize(out_file);
 
             if (!parseFilename(class_name))
             {
@@ -49,7 +53,7 @@ int main(int argc, char **argv)
             CompilerOutput::getInstance().print(
                 ".class public ");
             CompilerOutput::getInstance().print(
-                (class_name + "\n").c_str());
+                (class_name + "\n"));
             CompilerOutput::getInstance().print(
                 ".super java/lang/Object\n"
                 ".method public <init>()V\n"
@@ -59,12 +63,19 @@ int main(int argc, char **argv)
                 "  invokespecial java/lang/Object/<init>()V\n"
                 "  return\n"
                 ".end method\n"
-                ".method public static main([Ljava/lang/String;)V\n"
-                "  .limit stack 1000\n"
-                "  .limit locals 3\n");
+                ".method public static main([Ljava/lang/String;)V\n");
+
+            JVMPreprocessingVisitor preprocessing_visitor;
+            preprocessing_visitor.visitListStmt(parse_tree);
 
             JVMInstructionsVisitor instructions_visitor;
             instructions_visitor.visitListStmt(parse_tree);
+
+            CompilerOutput::getInstance().print(
+                "  .limit stack " + std::to_string(JVMVariables::getInstance().getMaxStack()) + "\n"
+                "  .limit locals " + std::to_string(JVMVariables::getInstance().getMaxIndex() + 1) + "\n");
+
+            CompilerOutput::getInstance().save();
 
             CompilerOutput::getInstance().print(
                 "  return\n"
@@ -73,8 +84,17 @@ int main(int argc, char **argv)
             CompilerOutput::getInstance().deinitialize();
 
             printf("Compiling successful!\n");
-            printf("Generated %s.j and %s.class files in %s directory.\n",
-                class_name.c_str(), class_name.c_str(), directory.c_str()   );
+            printf("Generated: %s/%s.j\n",
+                directory.c_str(), class_name.c_str());
+
+            std::string exec_param = argv[0];
+            auto last_slash_iter = exec_param.find_last_of('/');
+            std::string relative_directory_exec =
+                last_slash_iter == std::string::npos ? exec_param : exec_param.substr(0, last_slash_iter);
+            std::string jasmin_command =
+                "java -jar " + relative_directory_exec + "/lib/jasmin.jar " + directory + "/" + class_name + ".j" + " -d " + directory;
+
+            std::system(jasmin_command.c_str());
 
             return 0;
         }

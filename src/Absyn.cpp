@@ -33,9 +33,10 @@ Prog::~Prog()
     delete (liststmt_);
 }
 
-void Prog::accept(Visitor *v)
+std::pair<int, bool> Prog::accept(Visitor *v)
 {
     v->visitProg(this);
+    return std::make_pair(0, false);
 }
 
 Prog *Prog::clone() const
@@ -74,9 +75,9 @@ SAss::~SAss()
     delete (exp_);
 }
 
-void SAss::accept(Visitor *v)
+std::pair<int, bool> SAss::accept(Visitor *v)
 {
-    v->visitSAss(this);
+    return v->visitSAss(this);
 }
 
 SAss *SAss::clone() const
@@ -112,9 +113,9 @@ SExp::~SExp()
     delete (exp_);
 }
 
-void SExp::accept(Visitor *v)
+std::pair<int, bool> SExp::accept(Visitor *v)
 {
-    v->visitSExp(this);
+    return v->visitSExp(this);
 }
 
 SExp *SExp::clone() const
@@ -154,9 +155,9 @@ ExpAdd::~ExpAdd()
     delete (exp_2);
 }
 
-void ExpAdd::accept(Visitor *v)
+std::pair<int, bool> ExpAdd::accept(Visitor *v)
 {
-    v->visitExpAdd(this);
+    return v->visitExpAdd(this);
 }
 
 ExpAdd *ExpAdd::clone() const
@@ -196,9 +197,9 @@ ExpSub::~ExpSub()
     delete (exp_2);
 }
 
-void ExpSub::accept(Visitor *v)
+std::pair<int, bool> ExpSub::accept(Visitor *v)
 {
-    v->visitExpSub(this);
+    return v->visitExpSub(this);
 }
 
 ExpSub *ExpSub::clone() const
@@ -238,9 +239,9 @@ ExpMul::~ExpMul()
     delete (exp_2);
 }
 
-void ExpMul::accept(Visitor *v)
+std::pair<int, bool> ExpMul::accept(Visitor *v)
 {
-    v->visitExpMul(this);
+    return v->visitExpMul(this);
 }
 
 ExpMul *ExpMul::clone() const
@@ -280,9 +281,9 @@ ExpDiv::~ExpDiv()
     delete (exp_2);
 }
 
-void ExpDiv::accept(Visitor *v)
+std::pair<int, bool> ExpDiv::accept(Visitor *v)
 {
-    v->visitExpDiv(this);
+    return v->visitExpDiv(this);
 }
 
 ExpDiv *ExpDiv::clone() const
@@ -317,9 +318,9 @@ ExpLit::~ExpLit()
 {
 }
 
-void ExpLit::accept(Visitor *v)
+std::pair<int, bool> ExpLit::accept(Visitor *v)
 {
-    v->visitExpLit(this);
+    return v->visitExpLit(this);
 }
 
 ExpLit *ExpLit::clone() const
@@ -354,9 +355,9 @@ ExpVar::~ExpVar()
 {
 }
 
-void ExpVar::accept(Visitor *v)
+std::pair<int, bool> ExpVar::accept(Visitor *v)
 {
-    v->visitExpVar(this);
+    return v->visitExpVar(this);
 }
 
 ExpVar *ExpVar::clone() const
@@ -366,9 +367,11 @@ ExpVar *ExpVar::clone() const
 
 /********************   ListStmt    ********************/
 
-void ListStmt::accept(Visitor *v)
+std::pair<int, bool> ListStmt::accept(Visitor *v)
 {
     v->visitListStmt(this);
+
+    return std::make_pair(0, false);
 }
 
 ListStmt *ListStmt::clone() const

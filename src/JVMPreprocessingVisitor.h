@@ -1,9 +1,9 @@
-#ifndef JVM_INSTRUCTIONS_VISITOR_HEADER
-#define JVM_INSTRUCTIONS_VISITOR_HEADER
+#ifndef JVM_PREPROCESSING_VISITOR_HEADER
+#define JVM_PREPROCESSING_VISITOR_HEADER
 
 #include "Absyn.h"
 
-class JVMInstructionsVisitor : public Visitor
+class JVMPreprocessingVisitor : public Visitor
 {
 public:
     void visitProgram(Program *p);

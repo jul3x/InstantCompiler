@@ -6,7 +6,6 @@
 /****************************************************************************/
 #include <stdio.h>
 #include "Parser.h"
-#include "Printer.h"
 #include "Absyn.h"
 
 int main(int argc, char **argv)
@@ -27,13 +26,7 @@ int main(int argc, char **argv)
     Program *parse_tree = pProgram(input);
     if (parse_tree)
     {
-        printf("\nParse Succesful!\n");
-        printf("\n[Abstract Syntax]\n");
-        ShowAbsyn *s = new ShowAbsyn();
-        printf("%s\n\n", s->show(parse_tree));
-        printf("[Linearized Tree]\n");
-        PrintAbsyn *p = new PrintAbsyn();
-        printf("%s\n\n", p->print(parse_tree));
+
         return 0;
     }
     return 1;

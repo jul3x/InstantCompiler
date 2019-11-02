@@ -1,7 +1,7 @@
 #ifndef COMPILER_OUTPUT_HEADER
 #define COMPILER_OUTPUT_HEADER
 
-#include <stdio.h>
+#include <fstream>
 
 class CompilerOutput
 {
@@ -14,29 +14,40 @@ public:
         return instance;
     }
 
-    void initialize(const char *filename) {
+    void initialize(const std::string &filename) {
         filename_ = filename;
-        out_file_ = fopen(filename, "w");
+        out_file_.open(filename);
     }
 
     void deinitialize() {
-        fclose(out_file_);
+        out_file_.close();
+        output_.clear();
+        filename_ = "";
     }
 
-    void print(const char *line) {
-        fprintf(out_file_, line);
+    void append(const std::string &new_line) {
+        output_ = output_ + new_line;
+    }
+
+    void save() {
+        out_file_ << output_;
+    }
+
+    void print(const std::string &what) {
+        out_file_ << what;
     }
 
     void destroy() {
         deinitialize();
-        remove(filename_);
+        remove(filename_.c_str());
     }
 
 private:
     CompilerOutput() = default;
 
-    FILE *out_file_;
-    const char *filename_;
+    std::ofstream out_file_;
+    std::string filename_;
+    std::string output_;
 };
 
 #endif

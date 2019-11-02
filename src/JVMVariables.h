@@ -43,13 +43,31 @@ public:
         return max_index_;
     }
 
+    void modifyStack(short int diff) {
+        current_stack_ += diff;
+
+        max_stack_ = std::max(current_stack_, max_stack_);
+    }
+
+    const unsigned int getMaxIndex() const {
+        return max_index_;
+    }
+
+    const unsigned int getMaxStack() const {
+        return max_stack_;
+    }
+
 private:
     JVMVariables() {
         max_index_ = 0;
+        max_stack_ = 0;
+        current_stack_ = 0;
     }
 
     std::unordered_map<std::string, unsigned int> vars_;
     unsigned int max_index_;
+    unsigned int max_stack_;
+    unsigned int current_stack_;
 };
 
 #endif

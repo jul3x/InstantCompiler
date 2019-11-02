@@ -35,3 +35,7 @@
 *.app
 insc_jvm
 insc_llvm
+
+# JVM
+*.j
+*.class
