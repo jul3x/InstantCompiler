@@ -1,3 +1,5 @@
+/* A Bison parser, made by GNU Bison 3.0.4.  */
+
 #ifndef PARSER_HEADER_FILE
 #define PARSER_HEADER_FILE
 

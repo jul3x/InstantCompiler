@@ -1,8 +1,5 @@
-/*** BNFC-Generated Visitor Design Pattern LLVMInstructionsVisitor. ***/
-/* This implements the common visitor design pattern.
-   Note that this method uses Visitor-traversal of lists, so
-   List->accept() does NOT traverse the list. This allows different
-   algorithms to use context information differently. */
+/*** BNFC-Generated Visitor Design Pattern for LLVM traversal. ***/
+/*** BNFC was used to generate skeleton for tree traversal. ***/
 
 #include "LLVMInstructionsVisitor.h"
 #include "LLVMVariables.h"
