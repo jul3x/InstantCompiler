@@ -1,6 +1,6 @@
 # InstantCompiler
 Simple compiler of Instant language to JVM bytecode and LLVM bitcode.  
-First task of MRJP course at MIMUW.
+First task of Compilers Construction course at MIMUW.
 
 # Language
 Instant is a simple language based on non-negative integers, arithmetical operations and variables.  
