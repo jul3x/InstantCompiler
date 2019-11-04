@@ -1,5 +1,5 @@
 # InstantCompiler
-Simple compiler of Instant language to JVM bitcode and LLVM bytecode.  
+Simple compiler of Instant language to JVM bytecode and LLVM bitcode.  
 First task of MRJP course at MIMUW.
 
 # Language
