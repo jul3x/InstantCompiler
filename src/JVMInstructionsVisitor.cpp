@@ -185,9 +185,13 @@ std::pair<int, bool> JVMInstructionsVisitor::visitInteger(Integer x)
     {
         out = "  bipush " + std::to_string(x) + "\n";
     }
-    else
+    else if (x <= 32767 && x >= -32767)
     {
         out = "  sipush " + std::to_string(x) + "\n";
+    }
+    else
+    {
+        out = "  ldc " + std::to_string(x) + "\n";
     }
 
     CompilerOutput::getInstance().append(out);

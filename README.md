@@ -4,7 +4,7 @@ First task of MRJP course at MIMUW.
 
 # Language
 Instant is a simple language based on non-negative integers, arithmetical operations and variables.  
-Non-context grammar of this language is described in src/Instant.cf file (BNFC format).
+Non-context grammar of this language is described in src/Instant.cf file (BNF format).
 
 # Used tools
 * BNFC 2.8 for compiler front-end generating.
